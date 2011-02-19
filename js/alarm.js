@@ -1,15 +1,12 @@
- // Look up JS DOC
- //
- // Alarm
- //
- //
- // var x
- // var y
- // var size
- // var pointSize
- // var onColor
- // var offColor
- // var ctx 
+ /**
+  * Alarm
+  *
+  * @author Richard Pullinger
+  */
+ 
+ /**
+  * @constructor
+  */
  function alarm(x, y, size, pointSize, onColor, offColor, ctx){
     this.x = x;
     this.y = y;
@@ -25,22 +22,14 @@
     this.status = "clock";
     this.hour = 12;
     this.mins = 0;
-    this.secs = 0;
-    this.time = function(){        
-        // TODO - I don't like how this bit works - Need to sort it out!
-        var time = new Date();           
-        // get numbers from time 
-        
-        
-        
-        
-        return [, hours.substring(1,2), mins.substring(0,1), mins.substring(1,2), secs];
-    };
-        
+    this.secs = 0; 
+    
+    /**
+     * Draw Clock onto the canvas
+     */       
     this.draw = function(){                   
         
         var time = new Date(); 
-
         // Get numbers within the time    
         this.hours = time.getHours().toString();
         this.mins = time.getMinutes().toString();
@@ -67,6 +56,9 @@
         this.drawSeperator(seperatorOn, this.width * 3);
     };       
     
+    /**
+     * Draw a single digital section
+     */
     this.drawNumber = function(number, offset) {         
          
         // Array of on / off of sections to create numbers
@@ -109,6 +101,9 @@
         ctx.fillRect(horzOffset, this.y + this.width +  this.pointSize / 2, this.pointSize, this.pointSize);
     };
     
+    /**
+     * Draws a single part of the digital display
+     */
     this.drawDigitalClockPart = function(width, height, x, y, on){
         // Could this be drawn easier with two triangles and a rectangle?
         this.ctx.fillStyle = this.getColor(on); 
@@ -156,7 +151,10 @@
         this.ctx.closePath();             
         this.ctx.fill();  
     };
-
+    
+    /**
+     * Returns the on/off color 
+     */
     this.getColor = function(on){
         return on ? this.onColor : this.offColor;
     };
