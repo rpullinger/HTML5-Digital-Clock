@@ -19,8 +19,10 @@
     this.width = this.size + this.pointSize * 2 + this.margin; 
     this.ctx = ctx; 
     this.alarmTime = "1141"; 
+    this.alarmHour = 10;
+    this.alarmMin = 52;
     this.status = "clock";
-    this.hour = 12;
+    this.hours = 12;
     this.mins = 0;
     this.secs = 0; 
     
@@ -31,25 +33,37 @@
         
         var time = new Date(); 
         // Get numbers within the time    
-        this.hours = time.getHours().toString();
-        this.mins = time.getMinutes().toString();
+        this.hours = time.getHours()
+        this.mins = time.getMinutes()
         this.secs = time.getSeconds();
+        
+        
         // Add 0 if time is single figure
-        this.hours = this.hours.length < 2 ? 0 + this.hours : this.hours;
-        this.mins = this.mins.length < 2 ? 0 + this.mins : this.mins;
+        this.hours = this.hours.toString().length < 2 ? "0" + this.hours : this.hours.toString();
+        this.mins = this.mins.toString().length < 2 ? "0" + this.mins : this.mins.toString();
+        this.alarmHours = this.alarmHour.toString().length < 2 ? "0" + this.alarmHour : this.alarmHour.toString();
+        this.alarmMins = this.alarmMin.toString().length < 2 ? "0" + this.alarmMin: this.alarmMin.toString();
         
         // check if alarm should be going
-        if(this.alarmTime == this.hours + this.mins){
+        if(this.alarmHours == this.hours && this.alarmMins == this.mins && this.status != "set"){
             this.status = "alarm";
-        } else{
-            this.status = "clock";
         }
-               
+        
+        // set alarm
+        if(this.status == "set"){
+             this.drawNumber(this.alarmHours.substring(0,1), this.width);
+             this.drawNumber(this.alarmHours.substring(1,2), this.width * 2);                    
+             this.drawNumber(this.alarmMins.substring(0,1), this.width * 4);
+             this.drawNumber(this.alarmMins.substring(1,2), this.width * 5);
+        }
+        else
+        { 
         // Draw Time
         this.drawNumber(this.hours.substring(0,1), this.width);
         this.drawNumber(this.hours.substring(1,2), this.width * 2);                    
         this.drawNumber(this.mins.substring(0,1), this.width * 4);
         this.drawNumber(this.mins.substring(1,2), this.width * 5);
+        }
         
         // Draw Seperator
         var seperatorOn = this.secs % 2 == 0 ? true : false;   
