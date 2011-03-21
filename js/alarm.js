@@ -1,4 +1,4 @@
- /**
+/**
   * Alarm
   *
   * @author Richard Pullinger
@@ -8,23 +8,18 @@
   * @constructor
   */
  function alarm(x, y, size, pointSize, onColor, offColor, ctx){
-    this.x = x;
-    this.y = y;
-    this.size = size;
-    this.pointSize = pointSize;
-    this.onColor = onColor;
-    this.offColor = offColor;
-    this.spacing = this.pointSize / 2;  
-    this.margin = this.pointSize;
-    this.width = this.size + this.pointSize * 2 + this.margin; 
-    this.ctx = ctx; 
-    this.alarmTime = "1141"; 
-    this.alarmHour = 10;
-    this.alarmMin = 52;
-    this.status = "clock";
-    this.hours = 12;
-    this.mins = 0;
-    this.secs = 0; 
+    this.alarmHour = 12;
+    this.alarmMin = 0;
+    this.status = "clock"; // clock / alarm /set
+    this.alarmStatus = "off" // on / off / snoozed
+      
+    var hours = 12,
+          mins = 0,
+          secs = 0,
+          margin = pointSize,
+          spacing = pointSize / 2,
+          width = size + pointSize * 2 + margin;    
+    
     
     /**
      * Draw Clock onto the canvas
@@ -33,41 +28,45 @@
         
         var time = new Date(); 
         // Get numbers within the time    
-        this.hours = time.getHours()
-        this.mins = time.getMinutes()
-        this.secs = time.getSeconds();
-        
+        hours = time.getHours();
+        mins = time.getMinutes();
+        secs = time.getSeconds();        
         
         // Add 0 if time is single figure
-        this.hours = this.hours.toString().length < 2 ? "0" + this.hours : this.hours.toString();
-        this.mins = this.mins.toString().length < 2 ? "0" + this.mins : this.mins.toString();
-        this.alarmHours = this.alarmHour.toString().length < 2 ? "0" + this.alarmHour : this.alarmHour.toString();
-        this.alarmMins = this.alarmMin.toString().length < 2 ? "0" + this.alarmMin: this.alarmMin.toString();
+        hours = hours.toString().length < 2 ? "0" + hours : hours.toString();
+        mins = mins.toString().length < 2 ? "0" + mins : mins.toString();
+        var alarmHours = this.alarmHour.toString().length < 2 ? "0" + this.alarmHour : this.alarmHour.toString();
+        var alarmMins = this.alarmMin.toString().length < 2 ? "0" + this.alarmMin: this.alarmMin.toString();
         
         // check if alarm should be going
-        if(this.alarmHours == this.hours && this.alarmMins == this.mins && this.status != "set"){
+        if(alarmHours === hours && alarmMins === mins && this.status != "set" && this.alarmStatus === "on"){
             this.status = "alarm";
+        }else if(this.alarmStatus === "off"){
+            this.status = "clock";
         }
         
         // set alarm
-        if(this.status == "set"){
-             this.drawNumber(this.alarmHours.substring(0,1), this.width);
-             this.drawNumber(this.alarmHours.substring(1,2), this.width * 2);                    
-             this.drawNumber(this.alarmMins.substring(0,1), this.width * 4);
-             this.drawNumber(this.alarmMins.substring(1,2), this.width * 5);
+        if(this.status === "set"){
+            this.drawNumber(alarmHours.substring(0,1), 0);
+            this.drawNumber(alarmHours.substring(1,2), width);                    
+            this.drawNumber(alarmMins.substring(0,1), width * 3);
+            this.drawNumber(alarmMins.substring(1,2), width * 4);
+            this.drawSeperator(true, width * 2);
         }
-        else
-        { 
-        // Draw Time
-        this.drawNumber(this.hours.substring(0,1), this.width);
-        this.drawNumber(this.hours.substring(1,2), this.width * 2);                    
-        this.drawNumber(this.mins.substring(0,1), this.width * 4);
-        this.drawNumber(this.mins.substring(1,2), this.width * 5);
+        else{ 
+            // Draw Time
+            this.drawNumber(hours.substring(0,1), 0);
+            this.drawNumber(hours.substring(1,2), width);                    
+            this.drawNumber(mins.substring(0,1), width * 3);
+            this.drawNumber(mins.substring(1,2), width * 4);
+            
+            // Draw Seperator             
+            var seperatorOn = secs % 2 === 0 ? true : false;   
+            this.drawSeperator(seperatorOn, width * 2);
         }
         
-        // Draw Seperator
-        var seperatorOn = this.secs % 2 == 0 ? true : false;   
-        this.drawSeperator(seperatorOn, this.width * 3);
+       
+        
     };       
     
     /**
@@ -90,86 +89,76 @@
                                             ];      
                                             
         // Draw the separate pieces
-        this.drawDigitalClockPart(this.size, this.pointSize, offset + this.x, this.y, numberArray[number][0]);  // Top bar                
-        this.drawDigitalClockPart(this.pointSize, this.size, offset + this.x - this.spacing, this.y + this.spacing, numberArray[number][1]);  // Top left Bar               
-        this.drawDigitalClockPart(this.size, this.pointSize, offset + this.x, this.y + this.size + this.spacing * 2, numberArray[number][2]);  // Middle bar
-        this.drawDigitalClockPart(this.pointSize, this.size, offset + this.x + this.spacing + this.size, this.y + this.spacing, numberArray[number][3]);  // Top right Bar        
-        this.drawDigitalClockPart(this.pointSize, this.size, offset + this.x - this.spacing, this.y + this.size + this.spacing * 3, numberArray[number][4]);  // Bottom left Bar               
-        this.drawDigitalClockPart(this.size, this.pointSize, offset + this.x, this.y + this.size * 2 + this.spacing * 4, numberArray[number][5]);  // Bottom bar
-        this.drawDigitalClockPart(this.pointSize, this.size, offset + this.x + this.spacing + this.size, this.y + this.size + this.spacing * 3, numberArray[number][6]);  // Bottom right Bar       
+        this.drawDigitalClockPart(size, pointSize, offset + x, y, numberArray[number][0]);  // Top bar                
+        this.drawDigitalClockPart(pointSize, size, offset + x - spacing, y + spacing, numberArray[number][1]);  // Top left Bar               
+        this.drawDigitalClockPart(size, pointSize, offset + x, y + size + spacing * 2, numberArray[number][2]);  // Middle bar
+        this.drawDigitalClockPart(pointSize, size, offset + x + spacing + size, y + spacing, numberArray[number][3]);  // Top right Bar        
+        this.drawDigitalClockPart(pointSize, size, offset + x - spacing, y + size + spacing * 3, numberArray[number][4]);  // Bottom left Bar               
+        this.drawDigitalClockPart(size, pointSize, offset + x, y + size * 2 + spacing * 4, numberArray[number][5]);  // Bottom bar
+        this.drawDigitalClockPart(pointSize, size, offset + x + spacing + size, y + size + spacing * 3, numberArray[number][6]);  // Bottom right Bar       
     };       
     
     this.drawSeperator = function(on, offset){
         ctx.fillStyle = this.getColor(on);        
         // Draw the two separator squares
         if(on){
-            this.ctx.shadowBlur = 20;
-            this.ctx.shadowColor = this.getColor(on);
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = this.getColor(on);
         }else{
-            this.ctx.shadowBlur = 0;
-            this.ctx.shadowColor = this.getColor(false);
+            ctx.shadowBlur = 0;
+            ctx.shadowColor = this.getColor(false);
         }
         
-        var horzOffset = this.x + offset + (this.width / 2) - (this.pointSize* 2);        
-        ctx.fillRect(horzOffset, this.y + this.width / 2  - this.pointSize / 2, this.pointSize, this.pointSize);
-        ctx.fillRect(horzOffset, this.y + this.width +  this.pointSize / 2, this.pointSize, this.pointSize);
+        var horzOffset = x + offset + (width / 2) - (pointSize* 2);        
+        ctx.fillRect(horzOffset, y + width / 2  - pointSize / 2, pointSize, pointSize);
+        ctx.fillRect(horzOffset, y + width +  pointSize / 2, pointSize, pointSize);
     };
     
     /**
      * Draws a single part of the digital display
      */
     this.drawDigitalClockPart = function(width, height, x, y, on){
-        // Could this be drawn easier with two triangles and a rectangle?
-        this.ctx.fillStyle = this.getColor(on); 
+        // Could this. be drawn easier with two triangles and a rectangle?
+        ctx.fillStyle = this.getColor(on); 
         
         // Flash on/off if alarmed
-        if (this.status == "alarm"){
-            // Only blur if section is turned on.
-            if(on){
-                var alarming = this.secs % 2 == 0 ? true : false; 
-                this.ctx.shadowBlur = 50;
-                this.ctx.shadowColor = this.getColor(alarming);
-                this.ctx.fillStyle = this.getColor(alarming);
-            }else{
-                this.ctx.shadowBlur = 0;
-                this.ctx.shadowColor = this.getColor(false); 
-            }
+        if (this.status === "alarm"){
+            // Only blur if section is turned on.                        
+            var alarming = secs % 2 === 0 ? true : false; 
+            ctx.shadowBlur = on ? 50 : 0;
+            ctx.shadowColor = this.getColor(on ? alarming : false);
+            ctx.fillStyle = this.getColor(on ? alarming : false);        
         } else{
             // Only blur if section is turned on.
-            if(on){
-                this.ctx.shadowBlur = 20;
-                this.ctx.shadowColor = this.getColor(on);
-            }else{
-                this.ctx.shadowBlur = 0;
-                this.ctx.shadowColor = this.getColor(false);
-            }
+            ctx.shadowBlur = on ? 20 : 0 ;
+            ctx.shadowColor = this.getColor(on);      
         }
         
-        this.ctx.beginPath();  
-        this.ctx.moveTo(x, y);   
+        ctx.beginPath();  
+        ctx.moveTo(x, y);   
         // Draw the pointed ends in the right place based on vertical or horizontal
         if (width > height){
-            this.ctx.lineTo(x + height/2, y + height/2);  
-            this.ctx.lineTo(x + width - height/2, y + height/2);  
-            this.ctx.lineTo(x + width, y);  
-            this.ctx.lineTo(x + width - height/2, y - height/2);  
-            this.ctx.lineTo(x + height/2, y - height/2);  
+            ctx.lineTo(x + height/2, y + height/2);  
+            ctx.lineTo(x + width - height/2, y + height/2);  
+            ctx.lineTo(x + width, y);  
+            ctx.lineTo(x + width - height/2, y - height/2);  
+            ctx.lineTo(x + height/2, y - height/2);  
         }
         else{    
-            this.ctx.lineTo(x + width/2, y + width/2);  
-            this.ctx.lineTo(x + width/2, y + height - width/2);  
-            this.ctx.lineTo(x, y + height);  
-            this.ctx.lineTo(x - width/2, y + height - width/2);  
-            this.ctx.lineTo(x - width/2, y + width/2); 
+            ctx.lineTo(x + width/2, y + width/2);  
+            ctx.lineTo(x + width/2, y + height - width/2);  
+            ctx.lineTo(x, y + height);  
+            ctx.lineTo(x - width/2, y + height - width/2);  
+            ctx.lineTo(x - width/2, y + width/2); 
         }
-        this.ctx.closePath();             
-        this.ctx.fill();  
+        ctx.closePath();             
+        ctx.fill();  
     };
     
     /**
      * Returns the on/off color 
      */
     this.getColor = function(on){
-        return on ? this.onColor : this.offColor;
+        return on ? onColor : offColor;
     };
 }
